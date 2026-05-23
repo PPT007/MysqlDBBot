@@ -1,2 +1,2 @@
 # MysqlDBBot
-chatbot connected to mysql db 
+chatbot connected to mysql db..
