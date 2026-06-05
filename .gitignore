@@ -4,3 +4,5 @@ __pycache__/
 venv/
 .DS_Store
 docs/schema.txt
+embeddings/
+docs/
