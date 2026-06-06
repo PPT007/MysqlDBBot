@@ -69,35 +69,23 @@ def chunk_schema_text(
     chunk_size: int = 600,
     overlap: int = 1,
 ) -> List[str]:
-    """Create chunks from schema text while preserving table and relationship sections."""
+    """Create chunks from schema text with one chunk per table/section.
+    
+    Each table and the relationships section become separate chunks.
+    Large sections are split internally if they exceed chunk_size.
+    """
     sections = parse_schema_sections(schema_text)
     chunks: List[str] = []
-    current: List[str] = []
-    current_len = 0
 
     for section in sections:
-        section_len = len(section) + 2
+        section_len = len(section)
 
         if section_len > chunk_size:
-            if current:
-                chunks.append("\n\n".join(current).strip())
-                current = []
-                current_len = 0
-
+            # Split large sections internally, but keep them separate.
             chunks.extend(_split_long_section(section, chunk_size, overlap))
-            continue
-
-        if current_len + section_len <= chunk_size:
-            current.append(section)
-            current_len += section_len
         else:
-            if current:
-                chunks.append("\n\n".join(current).strip())
-            current = [section]
-            current_len = section_len
-
-    if current:
-        chunks.append("\n\n".join(current).strip())
+            # Keep each small section as its own chunk.
+            chunks.append(section)
 
     return [chunk for chunk in chunks if chunk]
 
