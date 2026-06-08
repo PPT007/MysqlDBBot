@@ -1,11 +1,13 @@
 from pathlib import Path
 
 from utils.style import GREEN, YELLOW, RESET
+from rag.sqlexecutor import execute_sql, format_query_results
 from db.schema_generator import generate_schema
 from rag.chunker import create_schema_chunks
 from rag.embedder import embed_texts, save_embeddings, DEFAULT_OUTPUT_DIR
 from rag.llm import generate_sql
 from rag.retriever import display_top_chunks, get_top_chunks
+
 
 print(f"{YELLOW}Bot: I am listening... Type \"generate schema\" to generate a fresh schema.{RESET}")
 while True:
@@ -35,5 +37,12 @@ while True:
             sql = generate_sql(user_input, top_chunks)
             print(f"{YELLOW}Generated SQL:{RESET}")
             print(sql)
+
+            print(f"\n{YELLOW}Bot: Execution Result:{RESET}")
+            try:
+                results = execute_sql(sql)
+                print(format_query_results(results))
+            except Exception as exc:
+                print(f"{YELLOW}SQL execution failed: {exc}{RESET}")
         except Exception as exc:
             print(f"{YELLOW}SQL generation failed: {exc}{RESET}")
