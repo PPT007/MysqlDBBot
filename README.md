@@ -5,3 +5,9 @@ What problem does it solve?
 
 Language used: Python
 The interface is vua terminal. 
+
+
+
+
+Run .\venv\Scripts\Activate.ps1    to start venv  
+Run main.py
