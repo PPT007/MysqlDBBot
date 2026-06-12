@@ -6,8 +6,11 @@ What problem does it solve?
 Language used: Python
 The interface is vua terminal. 
 
-
-
-
 Run .\venv\Scripts\Activate.ps1    to start venv  
 Run main.py
+
+
+
+
+
+This particular branch stores the schema in the text file. 
