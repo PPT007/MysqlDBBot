@@ -13,4 +13,4 @@ Run main.py
 
 
 
-This particular branch stores the schema in the text file. 
+This particular branch stores the schema in memory and generates chunkings/embeddings.
