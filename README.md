@@ -13,4 +13,6 @@ Run main.py
 
 
 
-This particular branch stores the schema in memory and generates chunkings/embeddings.
+This particular branch stores the embeddings in vector database. 
+We store schema in text file and embeddings in json file as well, but just for logging. 
+The data is retreived from database though for processing.
