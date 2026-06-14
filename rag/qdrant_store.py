@@ -3,8 +3,11 @@ import os
 import uuid
 from typing import List
 
+from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as rest
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +111,39 @@ def store_embeddings_in_qdrant(chunks: List[str], embeddings: List[List[float]])
         raise QdrantStoreError("Failed to upsert points into Qdrant.") from exc
 
 
+def search_similar_chunks(query_embedding: List[float], top_n: int = 3) -> List[dict]:
+    """Query the Qdrant collection for the top N chunks closest to query_embedding."""
+    print("Searching Qdrant...")
+    client = _get_client()
+    try:
+        if hasattr(client, "query_points"):
+            response = client.query_points(
+                collection_name=COLLECTION_NAME,
+                query=query_embedding,
+                limit=top_n,
+            )
+            results = response.points
+        else:
+            results = client.search(
+                collection_name=COLLECTION_NAME,
+                query_vector=query_embedding,
+                limit=top_n,
+            )
+        return [
+            {
+                "chunk_id": point.id,
+                "text": point.payload.get("chunk_text") if point.payload else "",
+                "similarity": point.score,
+            }
+            for point in results
+        ]
+    except Exception as exc:
+        raise QdrantStoreError(f"Failed to search Qdrant collection: {exc}") from exc
+
+
 __all__ = [
     "create_collection_if_not_exists",
     "store_embeddings_in_qdrant",
+    "search_similar_chunks",
     "QdrantStoreError",
 ]

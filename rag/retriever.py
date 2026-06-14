@@ -9,6 +9,7 @@ if str(ROOT_PATH) not in sys.path:
     sys.path.insert(0, str(ROOT_PATH))
 
 from rag.embedder import embed_texts
+from rag.qdrant_store import search_similar_chunks
 
 EMBEDDINGS_PATH = Path(__file__).resolve().parent / "embeddings" / "schema_embeddings.json"
 
@@ -60,10 +61,15 @@ def score_chunks(question: str, chunks: List[Dict[str, Any]]) -> List[Dict[str, 
 
 def get_top_chunks(question: str, top_n: int = 3) -> List[Dict[str, Any]]:
     """Return the top N chunks ranked by similarity to the question."""
-    chunks = load_chunk_embeddings(EMBEDDINGS_PATH)
-    scored_chunks = score_chunks(question, chunks)
-    scored_chunks.sort(key=lambda item: item["similarity"], reverse=True)
-    return scored_chunks[:top_n]
+    try:
+        question_embedding = embed_texts([question])[0]
+        return search_similar_chunks(question_embedding, top_n=top_n)
+    except Exception as exc:
+        print(f"\n[Warning] Qdrant search failed: {exc}. Falling back to local JSON schema search...\n")
+        chunks = load_chunk_embeddings(EMBEDDINGS_PATH)
+        scored_chunks = score_chunks(question, chunks)
+        scored_chunks.sort(key=lambda item: item["similarity"], reverse=True)
+        return scored_chunks[:top_n]
 
 
 def get_display_name(chunk_text: str) -> str:
