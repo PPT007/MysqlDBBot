@@ -164,6 +164,11 @@ if __name__ == "__main__":
     except ImportError:
         from chunker import create_schema_chunks
 
+    try:
+        from rag.qdrant_store import store_embeddings_in_qdrant
+    except ImportError:
+        from qdrant_store import store_embeddings_in_qdrant
+
     chunks = create_schema_chunks()
     try:
         embeddings = embed_texts(chunks)
@@ -174,3 +179,10 @@ if __name__ == "__main__":
 
     output_file = save_embeddings(chunks, embeddings, DEFAULT_OUTPUT_DIR / "schema_embeddings.json")
     print(f"Saved {len(chunks)} embeddings to {output_file}")
+
+    try:
+        print("Storing embeddings in Qdrant...")
+        store_embeddings_in_qdrant(chunks, embeddings)
+        print("Stored embeddings in Qdrant successfully.")
+    except Exception as exc:
+        print(f"Failed to store embeddings in Qdrant: {exc}")

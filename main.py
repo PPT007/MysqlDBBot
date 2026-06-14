@@ -5,6 +5,7 @@ from rag.sqlexecutor import execute_sql, format_query_results
 from db.schema_generator import generate_schema
 from rag.chunker import create_schema_chunks
 from rag.embedder import embed_texts, save_embeddings, DEFAULT_OUTPUT_DIR
+from rag.qdrant_store import store_embeddings_in_qdrant
 from rag.llm import generate_sql
 from rag.retriever import display_top_chunks, get_top_chunks
 
@@ -29,6 +30,13 @@ while True:
         embeddings = embed_texts(chunks)
         save_embeddings(chunks, embeddings, DEFAULT_OUTPUT_DIR / "schema_embeddings.json")
         print(f"{YELLOW}Bot: Embeddings generated and saved!{RESET}")
+
+        print(f"{YELLOW}Bot: Storing embeddings in Qdrant...{RESET}")
+        try:
+            store_embeddings_in_qdrant(chunks, embeddings)
+            print(f"{YELLOW}Bot: Embeddings stored in Qdrant successfully!{RESET}")
+        except Exception as exc:
+            print(f"{YELLOW}Bot: Failed to store embeddings in Qdrant: {exc}{RESET}")
     else:
         top_chunks = get_top_chunks(user_input)
         display_top_chunks(user_input, top_chunks)
